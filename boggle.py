@@ -11,19 +11,27 @@ class Trie:
     
     def insert(self, word):
         node = self.root
-        for char in word:
-            if char not in node.children:
-                node.children[char] = TrieNode()
-            node = node.children[char]
+        for c in word:
+            if c not in node.children:
+                node.children[c] = TrieNode()
+            node = node.children[c]
         node.is_end_of_word = True
     
     def search(self, word):
-        # TODO: Implement
-        pass
+        node = self.root
+        for c in word:
+            if c not in node.children:
+                return False
+            node = node.children[c]
+        return node.is_end_of_word
     
     def starts_with(self, prefix):
-        # TODO: Implement
-        pass
+        node = self.root
+        for c in prefix:
+            if c not in node.children:
+                return False
+            node = node.children[c]
+        return True
 
 class BoggleBoard:
     def __init__(self, size=4):
@@ -41,16 +49,27 @@ class BoggleBoard:
 class BoggleSolver:
     def __init__(self, dictionary):
         self.trie = Trie()
-        for word in dictionary:
-            self.trie.insert(word.upper())
+        for w in dictionary:
+            self.trie.insert(w.upper())
     
     def find_words(self, board):
-        found_words = set()
+        found = set()
         for i in range(len(board)):
             for j in range(len(board)):
-                self.dfs(board, i, j, "", set(), found_words)
-        return list(found_words)
+                self.dfs(board, i, j, "", set(), found)
+        return list(found)
     
-    def dfs(self, board, i, j, current_word, visited, found_words):
-        # TODO: Implement
-        pass
+    def dfs(self, board, i, j, word, visited, found):
+        if (i, j) in visited or i < 0 or j < 0 or i >= len(board) or j >= len(board):
+            return
+        word += board[i][j]
+        if not self.trie.starts_with(word):
+            return
+        if self.trie.search(word):
+            found.add(word)
+        visited.add((i, j))
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                if x or y:
+                    self.dfs(board, i + x, j + y, word, visited, found)
+        visited.remove((i, j))
